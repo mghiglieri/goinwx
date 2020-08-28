@@ -1,4 +1,4 @@
-module github.com/nrdcg/goinwx
+module github.com/mghiglieri/goinwx
 
 go 1.14
 
