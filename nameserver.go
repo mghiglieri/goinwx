@@ -63,11 +63,13 @@ func (s *NameserverService) Info(request *NameserverInfoRequest) (*NamserverInfo
 	return &result, nil
 }
 
-// List List nameservers for a domain.
-func (s *NameserverService) List(domain string) (*NamserverListResponse, error) {
+// List nameservers for a domain with a pagelimit. 
+// Function renamed and added pagelimit 2020-08-28
+func (s *NameserverService) ListPagelimit(domain string, pagelimit int) (*NamserverListResponse, error) {
 	requestMap := map[string]interface{}{
 		"domain": "*",
 		"wide":   2,
+		"pagelimit": pagelimit,
 	}
 
 	if domain != "" {
@@ -88,6 +90,19 @@ func (s *NameserverService) List(domain string) (*NamserverListResponse, error) 
 	}
 
 	return &result, nil
+}
+
+// List nameserver for a domain 
+// added 2020-08-28 if more than 20 domains exists do a second request
+func (s *NameserverService) List(domain string) (*NamserverListResponse, error) {
+	result, err := s.client.Nameservers.ListPagelimit(domain,20)
+
+	if result.Count > 20 {
+		result, err := s.client.Nameservers.ListPagelimit(domain,result.Count)
+		return result,err
+	}
+
+	return result, err
 }
 
 // Create Creates a nameserver.
